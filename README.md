@@ -7,7 +7,7 @@ A Python script that automatically updates your Cloudflare DNS records with your
 - Automatically detects your current public IP address
 - Updates your Cloudflare DNS record only when your IP changes
 - Configurable check intervals
-- Detailed logging
+- Detailed logging with automatic log rotation
 - Runs as a background process
 - Supports both proxied and unproxied DNS records
 - Can automatically discover your DNS record ID based on domain name
@@ -65,7 +65,20 @@ PROXIED=true
 
 # Script settings
 CHECK_INTERVAL=300  # Check every 5 minutes (in seconds)
+
+# Log rotation settings
+LOG_MAX_SIZE=1048576  # Maximum log file size in bytes (1 MB default)
+LOG_BACKUP_COUNT=3    # Number of backup log files to keep
 ```
+
+### Log Rotation
+
+The script implements automatic log rotation to prevent log files from becoming too large:
+
+- `LOG_MAX_SIZE`: Maximum size of each log file in bytes before rotation occurs (default: 1MB)
+- `LOG_BACKUP_COUNT`: Number of backup log files to keep (default: 3)
+
+When a log file reaches the maximum size, it's renamed to `cf_dyndns.log.1`, and a new log file is created. Older backup files are shifted (e.g., `.1` becomes `.2`), and the oldest ones are deleted if they exceed the backup count.
 
 ### About Cloudflare API Tokens
 
@@ -104,7 +117,7 @@ The script will:
 2. Compare it with your Cloudflare DNS record
 3. Update the record if they differ
 4. Wait for the specified interval before checking again
-5. Log all activities to both console and a log file
+5. Log all activities to both console and a rotating log file
 
 ## Setting Up as a Windows Service
 

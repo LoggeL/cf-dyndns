@@ -10,14 +10,7 @@ import time
 import logging
 import requests
 from dotenv import load_dotenv
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler(), logging.FileHandler("cf_dyndns.log")],
-)
-logger = logging.getLogger(__name__)
+from logging.handlers import RotatingFileHandler
 
 # Load environment variables from .env file
 load_dotenv()
@@ -33,6 +26,25 @@ PROXIED = os.getenv("PROXIED", "false").lower() == "true"
 CHECK_INTERVAL = int(
     os.getenv("CHECK_INTERVAL", "300")
 )  # Check every 5 minutes by default
+# Log settings with defaults
+LOG_MAX_SIZE = int(os.getenv("LOG_MAX_SIZE", "1048576"))  # 1 MB default
+LOG_BACKUP_COUNT = int(os.getenv("LOG_BACKUP_COUNT", "3"))  # Keep 3 files default
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.StreamHandler(),
+        RotatingFileHandler(
+            "cf_dyndns.log",
+            maxBytes=LOG_MAX_SIZE,
+            backupCount=LOG_BACKUP_COUNT,
+            encoding="utf-8",
+        ),
+    ],
+)
+logger = logging.getLogger(__name__)
 
 
 def get_current_ip():
